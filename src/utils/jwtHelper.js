@@ -1,5 +1,5 @@
-import JWT from 'jsonwebtoken' // Import từ jsonwebtoken
-import ms from 'ms' // Sử dụng ms để xử lý thời gian hết hạn (tùy chọn)
+import JWT from 'jsonwebtoken'
+import ms from 'ms'
 
 // Kiểm tra biến môi trường
 if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
@@ -9,29 +9,25 @@ if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
 // Tạo Access Token (hết hạn sau 15 phút)
 export const generateAccessToken = (user) => {
   try {
-    return JWT.sign(
-      { id: user.id, role: user.role },
-      process.env.ACCESS_TOKEN_SECRET,
-      { algorithm: 'HS256', expiresIn: ms('15m') / 1000 + 's' } // Sử dụng ms
-    )
+    const payload = { id: user.id, role: user.role }
+    return JWT.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '30m'
+    })
   } catch (err) {
-    console.error('Error generating access token:', err.message)
-    throw new Error('Failed to generate access token')
+    console.error('Error generating access token:', err)
+    throw new Error('Failed to generate access token: ' + err.message)
   }
-
 }
 
 // Tạo Refresh Token (hết hạn sau 7 ngày)
 export const generateRefreshToken = (user) => {
   try {
-    return JWT.sign(
-      { id: user.id },
-      process.env.REFRESH_TOKEN_SECRET,
-      { algorithm: 'HS256', expiresIn: ms('7d') / 1000 + 's' } // Sử dụng ms
-    )
+    const payload = { id: user.id, role: user.role }
+    return JWT.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: '7d'
+    })
   } catch (err) {
-    console.error('Error generating refresh token:', err.message)
-    throw new Error('Failed to generate refresh token')
+    console.error('Error generating refresh token:', err)
+    throw new Error('Failed to generate refresh token: ' + err.message)
   }
-
 }

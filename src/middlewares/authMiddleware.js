@@ -10,7 +10,7 @@ export const authenticate = (req, res, next) => {
 
   try {
     // Xác minh token với SECRET_KEY
-    const decoded = jwt.verify(token, process.env.SECRET_KEY)
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
     req.user = decoded // Đưa thông tin người dùng vào request để các controller có thể truy cập
     next() // Tiến tới middleware hoặc route tiếp theo
   } catch (error) {

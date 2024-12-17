@@ -9,9 +9,9 @@ dotenv.config()
 const app = express()
 app.use(express.json())
 //// Middleware
-app.use(cookieParser()); // Để xử lý cookies
-app.use(express.json()); // Xử lý JSON body
-app.use(express.urlencoded({ extended: true })); // Xử lý URL-encoded body
+app.use(cookieParser()) // Để xử lý cookies
+app.use(express.json()) // Xử lý JSON body
+app.use(express.urlencoded({ extended: true })) // Xử lý URL-encoded body
 
 // Routes
 app.use(authRoutes)
