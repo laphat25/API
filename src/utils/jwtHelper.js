@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import JWT from 'jsonwebtoken'
 import ms from 'ms'
 

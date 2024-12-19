@@ -1,9 +1,11 @@
+/* eslint-disable no-console */
 import express from 'express'
 import dotenv from 'dotenv'
 import sequelize from './config/database.js'
 import authRoutes from './routes/authRoutes.js'
 import courseRoutes from './routes/courseRoutes.js'
 import cookieParser from 'cookie-parser'
+import enrollmentRoutes from './routes/enrollmentRoutes.js'
 dotenv.config()
 
 const app = express()
@@ -16,6 +18,7 @@ app.use(express.urlencoded({ extended: true })) // Xử lý URL-encoded body
 // Routes
 app.use(authRoutes)
 app.use(courseRoutes)
+app.use(enrollmentRoutes)
 
 // Start Server
 const startServer = async () => {

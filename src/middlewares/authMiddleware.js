@@ -1,37 +1,52 @@
 import jwt from 'jsonwebtoken'
 import { StatusCodes } from 'http-status-codes'
+import User from '../models/User.js'
 
 // Middleware xác thực Access Token
-export const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]
+const authenticate = async (req, res, next) => {
+  const token = req.cookies?.accessToken || req.headers?.authorization?.split(' ')[1]
+
   if (!token) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'No token provided' })
   }
 
   try {
-    // Xác minh token với SECRET_KEY
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-    req.user = decoded // Đưa thông tin người dùng vào request để các controller có thể truy cập
-    next() // Tiến tới middleware hoặc route tiếp theo
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Access token expired' })
+    const user = await User.findByPk(decoded.id)
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({ error: 'User not found' })
     }
-    return res.status(StatusCodes.FORBIDDEN).json({ error: 'Invalid token' })
+    req.user = { id: user.id, role: user.role }
+    next()
+  } catch (error) {
+    console.error('Error verifying token:', error)
+    if (error.name === 'TokenExpiredError') {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Access token expired', detail: error.message })
+    }
+    return res.status(StatusCodes.FORBIDDEN).json({ error: 'Invalid token', detail: error.message })
   }
 }
 
 // Middleware kiểm tra quyền teacher
-export const isTeacher = (req, res, next) => {
-  // Kiểm tra nếu người dùng đã được xác thực trong middleware authenticate
-  if (!req.user) {
+const isTeacher = (req, res, next) => {
+  if (!req.user || !req.user.role) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' })
   }
 
-  // Kiểm tra quyền của người dùng
   if (req.user.role !== 'teacher') {
     return res.status(StatusCodes.FORBIDDEN).json({ error: 'You do not have permission to access this resource' })
   }
-
-  next() // Người dùng có quyền teacher, tiếp tục tới middleware hoặc route tiếp theo
+  next()
 }
+
+
+const isStudent = (req, res, next) => {
+  if (req.user && req.user.role === 'student') {
+    next()
+  } else {
+    return res.status(StatusCodes.FORBIDDEN).json({ error: 'Forbidden' })
+  }
+}
+
+
+export { authenticate, isTeacher, isStudent }

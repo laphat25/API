@@ -4,7 +4,7 @@ import { courseValidation } from '../validations/courseValidation.js'
 import validateInput from '../middlewares/validateInput.js'
 import { authenticate, isTeacher } from '../middlewares/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
 // Tạo khóa học mới (Chỉ giáo viên mới có quyền tạo khóa học)
 router.post('/courses', authenticate, isTeacher, validateInput(courseValidation), createCourse)
